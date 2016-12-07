@@ -287,7 +287,7 @@ public final class MainWindow extends ChatFrame implements ActionListener {
             Log.error(ex);
         }
         // Close application.
-        if (!Default.getBoolean("DISABLE_EXIT") && Enterprise.containsFeature(Enterprise.LOGOUT_EXIT_FEATURE)) System.exit(1);        
+        System.exit(1);
 
     }
 
@@ -473,42 +473,31 @@ public final class MainWindow extends ChatFrame implements ActionListener {
         alwaysOnTopItem = new JCheckBoxMenuItem();
         ResourceUtils.resButton(alwaysOnTopItem, Res.getString("menuitem.always.on.top"));
         alwaysOnTopItem.addActionListener( actionEvent -> {
-            if (alwaysOnTopItem.isSelected())
-            {
-                SettingsManager.getLocalPreferences().setMainWindowAlwaysOnTop(true);
-                MainWindow.getInstance().setAlwaysOnTop(true);
-            }
-            else
-            {
-                SettingsManager.getLocalPreferences().setMainWindowAlwaysOnTop(false);
-                MainWindow.getInstance().setAlwaysOnTop(false);
-            }
+        	SettingsManager.getLocalPreferences().setMainWindowAlwaysOnTop(alwaysOnTopItem.isSelected());
+        	MainWindow.getInstance().setAlwaysOnTop(alwaysOnTopItem.isSelected());
         } );
 
-        if (SettingsManager.getLocalPreferences().isMainWindowAlwaysOnTop())
-        {
-        	alwaysOnTopItem.setSelected(true);
-        	this.setAlwaysOnTop(true);
-        }
+        alwaysOnTopItem.setSelected(SettingsManager.getLocalPreferences().isMainWindowAlwaysOnTop());
+        this.setAlwaysOnTop(SettingsManager.getLocalPreferences().isMainWindowAlwaysOnTop());
+
         connectMenu.add(alwaysOnTopItem);
 
-        if (!Default.getBoolean("DISABLE_EXIT") && Enterprise.containsFeature(Enterprise.LOGOUT_EXIT_FEATURE)) connectMenu.addSeparator();
-
-        //EventQueue.invokeLater(new Runnable() {
-   	   //	public void run() {
-
-        JMenuItem logoutMenuItem = new JMenuItem();
-        ResourceUtils.resButton(logoutMenuItem, Res.getString("menuitem.logout.no.status"));
-        logoutMenuItem.addActionListener( e -> logout(false) );
-
-        JMenuItem logoutWithStatus = new JMenuItem();
-        ResourceUtils.resButton(logoutWithStatus, Res.getString("menuitem.logout.with.status"));
-        logoutWithStatus.addActionListener( e -> logout(true) );
-
+        // Set up the Logout and Exit menus...
         if (!Default.getBoolean("DISABLE_EXIT") && Enterprise.containsFeature(Enterprise.LOGOUT_EXIT_FEATURE)) {
-        	connectMenu.add(logoutMenuItem);
-        	connectMenu.add(logoutWithStatus);
         	connectMenu.addSeparator();
+        	if(!Default.getBoolean("HIDE_SAVE_PASSWORD_AND_AUTOLOGIN") && SettingsManager.getLocalPreferences().getPswdAutologin()) {
+        		JMenuItem logoutMenuItem = new JMenuItem();
+        		ResourceUtils.resButton(logoutMenuItem, Res.getString("menuitem.logout.no.status"));
+        		logoutMenuItem.addActionListener( e -> logout(false) );
+
+        		JMenuItem logoutWithStatus = new JMenuItem();
+        		ResourceUtils.resButton(logoutWithStatus, Res.getString("menuitem.logout.with.status"));
+        		logoutWithStatus.addActionListener( e -> logout(true) );
+
+        		connectMenu.add(logoutMenuItem);
+        		connectMenu.add(logoutWithStatus);
+        		connectMenu.addSeparator();
+        	}
         	connectMenu.add(exitMenuItem);
         }
 
